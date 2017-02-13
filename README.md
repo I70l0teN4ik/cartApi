@@ -135,7 +135,7 @@ The request should have the following body:
     "action": "remove"
 }
 ```
-This action accepts two types of action: `add` or `remove`. The Api will respond with updated cart info:
+This method accepts two types of `action`: `add` or `remove`. The Api will respond with updated cart info:
 ```
 {
   "id": 1,
