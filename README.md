@@ -173,3 +173,14 @@ The API will respond with the specific cart info:
 ### Remove cart ###
 `[DELETE] /cart/{id}`
 This method silently removes cart
+
+
+## Error handling ##
+I case of error API will response with 4xx Client Error Status and following structure:
+```
+Status: 409 Conflict
+{
+  "message": "Reached maximum number of products per cart.",
+  "code": 0
+}
+```
