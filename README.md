@@ -1,15 +1,10 @@
 # Simple application allowing adding products to the cart #
 
 
-## Installation ##
+## Initialization ##
 ```bash
 $ php bin/console doctrine:migrations:migrate
 ```
-
-```bash
-$ php bin/console doctrine:migrations:migrate
-```
-
 ```bash
 $ php bin/console api:generate:products
 ```
