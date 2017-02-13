@@ -6,7 +6,6 @@ use ApiBundle\Entity\Cart;
 use ApiBundle\Manager\CartManager;
 use ApiBundle\Response\ErrorResponse;
 use ApiBundle\Response\SerializedResponse;
-use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
