@@ -4,7 +4,6 @@ namespace ApiBundle\Controller;
 
 use ApiBundle\Entity\Product;
 use ApiBundle\Manager\ProductManager;
-use ApiBundle\Response\ErrorResponse;
 use ApiBundle\Response\ProductsResponse;
 use ApiBundle\Response\SerializedResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -16,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductController extends Controller
 {
     /**
-     * Add a new product
+     * Create a new Product
      *
      * @Route("/product", name="create_product")
      * @Method("POST")
@@ -30,18 +29,13 @@ class ProductController extends Controller
 
         /** @var ProductManager $productMng */
         $productMng = $this->get('product_manager');
-
-        try {
-            $product = $productMng->createProduct($name, $price);
-        } catch (\Exception $e) {
-            return new ErrorResponse($e);
-        }
+        $product = $productMng->createProduct($name, $price);
 
         return new SerializedResponse($this->get('serializer')->serialize($product, 'json'));
     }
 
     /**
-     * Remove a product if it exists
+     * Silenty removes a Product
      *
      * @Route("/product/{id}", requirements={"id": "\d+"}, name="remove_product")
      * @Method("DELETE")
@@ -59,7 +53,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Update product title and/or price
+     * Update Product name and/or price
      *
      * @Route("/product/{id}", requirements={"id": "\d+"}, name="edit_product")
      * @Method("PUT")
@@ -67,40 +61,28 @@ class ProductController extends Controller
      * @param Product $product
      * @return JsonResponse
      */
-    public function putUpdateProductAction(Request $request, Product $product = null)
+    public function putUpdateProductAction(Request $request, Product $product)
     {
-        if (!$product) {
-            return new ErrorResponse(sprintf('Product %s not found', $request->get('id')));
-        }
-
         $name = $request->request->get('name', false);
         $price = $request->request->get('price', false);
 
         /** @var ProductManager $productMng */
         $productMng = $this->get('product_manager');
-        try {
-            $product = $productMng->editProduct($product, $name, $price);
-        } catch (\Exception $e) {
-            return new ErrorResponse($e);
-        }
+        $product = $productMng->editProduct($product, $name, $price);
 
         return new SerializedResponse($this->get('serializer')->serialize($product, 'json'));
     }
 
     /**
-     * Get product info
+     * Get specific Product info
      *
      * @Route("/product/{id}", name="product_info")
      * @Method("GET")
-     * @param Request $request
      * @param Product $product
      * @return JsonResponse
      */
-    public function getProductAction(Request $request, Product $product = null)
+    public function getProductAction(Product $product)
     {
-        if (!$product) {
-            return new ErrorResponse(sprintf('Product %s not found', $request->get('id')));
-        }
         return new SerializedResponse($this->get('serializer')->serialize($product, 'json'));
     }
 
@@ -128,7 +110,7 @@ class ProductController extends Controller
         if (($page - 1) > 0) {
             $pagination['prev'] = $this->generateUrl('products_list', ['page' => ($page - 1), 'sort' => $sort], 0);
         }
-        if (sizeof($products) == Product::PER_PAGE  && $productMng->getProductsCount() > $page * Product::PER_PAGE) {
+        if (sizeof($products) == Product::PER_PAGE && $productMng->getProductsCount() > $page * Product::PER_PAGE) {
             $pagination['next'] =  $this->generateUrl('products_list', ['page' => ($page + 1), 'sort' => $sort], 0);
         }
 

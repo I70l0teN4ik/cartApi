@@ -19,7 +19,7 @@ class CartManager
     }
 
     /**
-     * Create new card. Add product to created cart if specified.
+     * Create new Card. Add product to created cart if specified.
      *
      * @param int $prodId
      * @return Cart
@@ -40,7 +40,7 @@ class CartManager
     }
 
     /**
-     * Silently removes cart
+     * Silently removes Cart
      *
      * @param Cart $cart
      * @return self
@@ -83,5 +83,10 @@ class CartManager
         $this->em->flush();
 
         return $cart;
+    }
+
+    public function getCartsList()
+    {
+        return $this->em->getRepository(Cart::class)->findAll();
     }
 }

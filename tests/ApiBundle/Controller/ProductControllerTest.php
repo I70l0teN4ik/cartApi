@@ -18,7 +18,7 @@ class ProductControllerTest extends WebTestCase
 
         // create test Product
         $client->request('POST', '/product', ['name' => self::NAME_1, 'price' => self::PRICE_1]);
-        $this->assertTrue($client->getResponse()->isSuccessful(), "Test Product created successfully");
+        $this->assertTrue($client->getResponse()->isSuccessful(), "Failed to create Test Product");
         $this->assertTrue(
             $client->getResponse()->headers->contains(
                 'Content-Type',
@@ -37,7 +37,7 @@ class ProductControllerTest extends WebTestCase
 
         // edit product
         $client->request("PUT", "/product/".$id, ['name' => self::NAME_2, 'price' => self::PRICE_2]);
-        $this->assertTrue($client->getResponse()->isSuccessful(), "Test Product updated successfully");
+        $this->assertTrue($client->getResponse()->isSuccessful(), "Failed to update Product");
         $this->assertContains(self::NAME_2, $client->getResponse()->getContent());
 
         $editedProduct = json_decode($client->getResponse()->getContent(), true);
@@ -45,7 +45,7 @@ class ProductControllerTest extends WebTestCase
 
         // remove test Product
         $client->request("DELETE", "/product/".$id);
-        $this->assertTrue($client->getResponse()->isSuccessful(), "Test Product deleted successfully");
+        $this->assertTrue($client->getResponse()->isSuccessful(), "Failed to delete Product");
     }
 
     public function tearDown()

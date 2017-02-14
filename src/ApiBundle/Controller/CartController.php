@@ -11,10 +11,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 class CartController extends Controller
 {
     /**
+     * Create new cart. Add Product to cart if specified.
+     *
      * @Route("/cart", name="create_cart")
      * @Method("POST")
      * @param Request $request
@@ -26,11 +29,8 @@ class CartController extends Controller
 
         /** @var CartManager $cartMng */
         $cartMng = $this->get('cart_manager');
-        try {
-            $cart = $cartMng->createCart($productId);
-        } catch (\Exception $e) {
-            return new ErrorResponse($e);
-        }
+        $cart = $cartMng->createCart($productId);
+
         $cartArray = $this->get('serializer')->toArray($cart);
         $cartArray['total_price'] = $cart->getTotalPrice();
 
@@ -38,6 +38,8 @@ class CartController extends Controller
     }
 
     /**
+     * Silently delete Cart
+     *
      * @Route("/cart/{id}", requirements={"id": "\d+"}, name="remove_cart")
      * @Method("DELETE")
      * @param Cart $cart
@@ -53,23 +55,21 @@ class CartController extends Controller
     }
 
     /**
+     * Update Cart: add or remove a Product
+     *
      * @Route("/cart/{id}", requirements={"id": "\d+"}, name="update_cart_products_list")
      * @Method("PUT")
      * @param Request $request
      * @param Cart $cart
      * @return JsonResponse
      */
-    public function putUpdateCartAction(Request $request, Cart $cart = null)
+    public function putUpdateCartAction(Request $request, Cart $cart)
     {
-        if (!$cart) {
-            return new ErrorResponse(sprintf('Cart %s not found', $request->get('id')));
-        }
-
         $productId = $request->request->getInt('product');
         $action = $request->request->get('action', null);
 
         if (!in_array($action, ['add', 'remove'])) {
-            return new ErrorResponse(sprintf('Not allowed action: %s', $action));
+            throw new NotAcceptableHttpException(sprintf('Not allowed action: %s', $action));
         }
 
         /** @var CartManager $cartMng */
@@ -86,20 +86,35 @@ class CartController extends Controller
     }
 
     /**
+     * Get Cart info with total price of added Products
+     *
      * @Route("/cart/{id}", name="cart_products_list")
      * @Method("GET")
      * @param Request $request
      * @param Cart $cart
      * @return JsonResponse
      */
-    public function getCartProductsListAction(Request $request, Cart $cart = null)
+    public function getCartProductsListAction(Request $request, Cart $cart)
     {
-        if (!$cart) {
-            return new ErrorResponse(sprintf('Cart %s not found', $request->get('id')));
-        }
         $cartArray = $this->get('serializer')->toArray($cart);
         $cartArray['total_price'] = $cart->getTotalPrice();
 
         return new JsonResponse($cartArray);
+    }
+
+    /**
+     * @Route("/carts", name="carts_list")
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getCartsListAction(Request $request)
+    {
+        /** @var CartManager $cartMng */
+        $cartMng = $this->get('cart_manager');
+
+        $carts = $this->get('serializer')->serialize($cartMng->getCartsList(), 'json');
+
+        return new SerializedResponse($carts);
     }
 }
